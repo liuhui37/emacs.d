@@ -6,6 +6,20 @@
   (autoload 'org-mac-grab-link "org-mac-link" nil t)
   (require-package 'org-mac-iCal))
 
+(require 'ox)
+
+;; Export Back-End
+(require-package 'ox-asciidoc)
+(require 'ox-asciidoc)
+(require-package 'ox-gfm)
+(require 'ox-gfm)
+(require-package 'ox-impress-js)
+(require 'ox-impress-js)
+(require-package 'ox-rst)
+(require 'ox-rst)
+(require-package 'ox-twbs)
+(require 'ox-twbs)
+
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
 

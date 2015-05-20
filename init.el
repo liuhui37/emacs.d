@@ -53,9 +53,14 @@
 (require 'init-flycheck)
 
 (require 'init-recentf)
-(require 'init-ido)
+;; (require 'init-ido)
 (require 'init-hippie-expand)
-(require 'init-auto-complete)
+;; (require 'init-auto-complete)
+(require 'init-cedet)
+(require 'init-projectile)
+(require 'init-yasnippet)
+(require 'init-company)
+(require 'init-helm)
 (require 'init-windows)
 (require 'init-sessions)
 (require 'init-fonts)
@@ -71,6 +76,7 @@
 (require 'init-compile)
 (require 'init-crontab)
 (require 'init-textile)
+(require 'init-tex)
 (require 'init-markdown)
 (require 'init-csv)
 (require 'init-erlang)
@@ -95,8 +101,12 @@
   (require 'init-clojure-cider))
 (require 'init-common-lisp)
 
+;; (require 'init-go)
+
 (when *spell-check-support-enabled*
   (require 'init-spelling))
+
+(require 'init-mode-line)
 
 (require 'init-misc)
 
