@@ -72,5 +72,16 @@
     (require-package 'frame-restore)
     (frame-restore)))
 
+;; https://github.com/emacs-helm/helm/issues/204
+;; https://github.com/emacs-helm/helm/issues/94
+;; The saved variable in session will abbreviates with "..." when the level
+;; is too deep or length too long, it maybe breaks some functions,
+;; ex. `helm-show-kill-ring'.
+(setq session-save-print-spec '(t nil 50000))
+
 
 (provide 'init-sessions)
+
+;; Local Variables:
+;; coding: utf-8
+;; End:
