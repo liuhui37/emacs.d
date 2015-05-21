@@ -7,7 +7,7 @@
     (setq preferred-han-fonts-list '("文泉驿等宽正黑-12"))))
 (when *is-a-mac*
   (progn
-    (setq preferred-fonts-list '("Lucida Console-14"))
+    (setq preferred-fonts-list '("Lucida Console-14" "Andale Mono-13"))
     (setq preferred-han-fonts-list '("Hiragino Sans GB W3-14" "STHeiti-14"))))
 
 (dolist (preferred-font preferred-fonts-list)
