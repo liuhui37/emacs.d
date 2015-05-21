@@ -1,7 +1,7 @@
 (when (< emacs-major-version 24)
   (require-package 'color-theme))
 
-(require-package 'nzenburn-theme)
+;;;;(require-package 'nzenburn-theme)
 (require-package 'color-theme-sanityinc-solarized)
 (require-package 'color-theme-sanityinc-tomorrow)
 (require-package 'monokai-theme)
@@ -77,3 +77,7 @@ ignored: use `custom-enabled-themes' instead."
 
 
 (provide 'init-themes)
+
+;; Local Variables:
+;; coding: utf-8
+;; End:

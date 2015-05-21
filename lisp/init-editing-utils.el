@@ -24,6 +24,9 @@
  scroll-preserve-screen-position 'always
  set-mark-command-repeat-pop t
  show-trailing-whitespace t
+ mode-require-final-newline t      ; add a newline to end of file
+ global-mark-ring-max 1000         ; increase mark ring to contains 5000 entries
+ mark-ring-max 1000                ; increase kill ring to contains 5000 entries
  tooltip-delay 1.5
  truncate-lines nil
  truncate-partial-width-windows nil
@@ -35,6 +38,9 @@
 
 (transient-mark-mode t)
 
+
+(dolist (hook '(prog-mode-hook html-mode-hook css-mode-hook))
+  (add-hook hook 'linum-mode))
 
 ;;; Whitespace
 

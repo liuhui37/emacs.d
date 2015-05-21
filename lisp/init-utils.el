@@ -85,5 +85,52 @@
         (error "Cannot open tramp file")
       (browse-url (concat "file://" file-name)))))
 
+;;----------------------------------------------------------------------------
+;; Kill buffer except buffer should not be killed
+;;----------------------------------------------------------------------------
+(setq should-not-be-killed-buffer-list '("*scratch*" "*Messages*"))
+(defun kill-buffer-except-some ()
+  "Kill buffer if it is not in the should-not-be-killed-buffer-list."
+  (interactive)
+  (if (member (buffer-name (current-buffer)) should-not-be-killed-buffer-list)
+      (bury-buffer)
+    (kill-buffer (current-buffer))))
+
+;;----------------------------------------------------------------------------
+;; Close and kill this pane.
+;;----------------------------------------------------------------------------
+(defun close-and-kill-this-pane ()
+  "If there are multiple windows, then close this pane and kill the buffer in it also."
+  (interactive)
+  (kill-this-buffer)
+  (if (not (one-window-p))
+      (delete-window)))
+
+;;----------------------------------------------------------------------------
+;; Close and kill other pane.
+;;----------------------------------------------------------------------------
+(defun close-and-kill-other-pane ()
+  "If there are multiple windows, then close the other pane and kill the buffer in it also."
+  (interactive)
+  (other-window 1)
+  (kill-this-buffer)
+  (if (not (one-window-p))
+      (delete-window)))
+
+;;----------------------------------------------------------------------------
+;; Kill all Dired buffers.
+;;----------------------------------------------------------------------------
+(defun kill-all-dired-buffers ()
+  "Kill all buffers whose major mode is Dired."
+  (interactive)
+  (mapc (lambda (buffer)
+          (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+            (kill-buffer buffer)))
+        (buffer-list)))
+
 
 (provide 'init-utils)
+
+;; Local Variables:
+;; coding: utf-8
+;; End:

@@ -20,5 +20,6 @@
 ;; Enable EDE only in C/C++
 (require 'ede)
 (add-hook 'after-init-hook 'global-ede-mode)
+(setq stack-trace-on-error t)
 
 (provide 'init-cedet)

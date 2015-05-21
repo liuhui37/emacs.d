@@ -8,11 +8,15 @@
 (when (version<= emacs-version "24")
   (message "Your Emacs is old, and some functionality in this config will be disabled. Please upgrade if possible."))
 
+(setq user-emacs-directory (file-name-directory load-file-name))
+
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
 (defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
+(defconst *is-a-linux* (eq system-type 'gnu/linux))
 (defconst *is-a-mac* (eq system-type 'darwin))
+(defconst *is-a-windows* (eq system-type 'windows-nt))
 
 ;;----------------------------------------------------------------------------
 ;; Bootstrap config
@@ -56,10 +60,10 @@
 ;; (require 'init-ido)
 (require 'init-hippie-expand)
 ;; (require 'init-auto-complete)
-(require 'init-cedet)
-(require 'init-projectile)
 (require 'init-yasnippet)
+(require 'init-cedet)
 (require 'init-company)
+(require 'init-projectile)
 (require 'init-helm)
 (require 'init-windows)
 (require 'init-sessions)
@@ -78,6 +82,7 @@
 (require 'init-textile)
 (require 'init-tex)
 (require 'init-markdown)
+(require 'init-tex)
 (require 'init-csv)
 (require 'init-erlang)
 (require 'init-javascript)

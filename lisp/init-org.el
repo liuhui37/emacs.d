@@ -355,3 +355,7 @@ typical word processor."
 
 
 (provide 'init-org)
+
+;; Local Variables:
+;; coding: utf-8
+;; End:
