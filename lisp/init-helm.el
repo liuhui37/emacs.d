@@ -106,5 +106,10 @@
 (require 'helm-projectile)
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
+(setq projectile-switch-project-action 'helm-projectile)
 
 (provide 'init-helm)
+
+;; Local Variables:
+;; coding: utf-8
+;; End:
