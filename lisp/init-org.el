@@ -1,5 +1,7 @@
 (when (< emacs-major-version 24)
   (require-package 'org))
+(require 'org)
+(require 'org-table)
 (require-package 'org-fstree)
 (when *is-a-mac*
   (require-package 'org-mac-link)
