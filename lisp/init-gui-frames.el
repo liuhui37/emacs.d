@@ -27,6 +27,8 @@
 ;;----------------------------------------------------------------------------
 ;; Window size and features
 ;;----------------------------------------------------------------------------
+(when (fboundp 'menu-bar-mode)
+  (menu-bar-mode -1))
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 (when (fboundp 'set-scroll-bar-mode)
@@ -74,6 +76,8 @@
 (add-hook 'term-mode-hook
           (lambda ()
             (setq line-spacing 0)))
+
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 
 (provide 'init-gui-frames)
