@@ -117,6 +117,7 @@
 (require 'init-common-lisp)
 
 ;; (require 'init-go)
+(require 'init-rust)
 
 (when *spell-check-support-enabled*
   (require 'init-spelling))
