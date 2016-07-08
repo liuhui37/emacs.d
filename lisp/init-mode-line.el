@@ -4,8 +4,9 @@
 (require-package 'smart-mode-line-powerline-theme)
 (require-package 'svg-mode-line-themes)
 
-(sml/setup)
-(sml/apply-theme 'automatic)
+(add-hook 'after-init-hook
+          (lambda () (sml/setup)
+            (sml/apply-theme 'automatic)))
 
 (provide 'init-mode-line)
 
