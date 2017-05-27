@@ -69,8 +69,6 @@
 
 (helm-mode)
 
-(require 'helm-gtags)
-
 (setq
  helm-gtags-ignore-case t
  helm-gtags-auto-update t
@@ -79,6 +77,8 @@
  helm-gtags-prefix-key "\C-cg"
  helm-gtags-suggested-key-mapping t
  )
+
+(require 'helm-gtags)
 
 ;; Enable helm-gtags-mode in Dired so you can jump to any tag
 ;; when navigate project tree with Dired
