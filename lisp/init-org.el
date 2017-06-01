@@ -1,35 +1,34 @@
 (when (< emacs-major-version 24)
   (require-package 'org))
-(require 'org)
-(require 'org-table)
 (require-package 'org-fstree)
 (when *is-a-mac*
-  (require-package 'org-mac-link)
-  (autoload 'org-mac-grab-link "org-mac-link" nil t)
+  (maybe-require-package 'grab-mac-link)
   (require-package 'org-mac-iCal))
 
-(require 'ox)
+(maybe-require-package 'org-cliplink)
 
-;; Export Back-End
-(require-package 'ox-asciidoc)
-(require 'ox-asciidoc)
-(require-package 'ox-gfm)
-(require 'ox-gfm)
-(require-package 'ox-impress-js)
-(require 'ox-impress-js)
-(require-package 'ox-rst)
-(require 'ox-rst)
-(require-package 'ox-twbs)
-(require 'ox-twbs)
+;;(require 'ox)
+
+;;;; Export Back-End
+;;(require-package 'ox-asciidoc)
+;;(require 'ox-asciidoc)
+;;(require-package 'ox-gfm)
+;;(require 'ox-gfm)
+;;(require-package 'ox-impress-js)
+;;(require 'ox-impress-js)
+;;(require-package 'ox-rst)
+;;(require 'ox-rst)
+;;(require-package 'ox-twbs)
+;;(require 'ox-twbs)
 
 (define-key global-map (kbd "C-c l") 'org-store-link)
 (define-key global-map (kbd "C-c a") 'org-agenda)
 
 ;; Various preferences
 (setq org-log-done t
-      org-completion-use-ido t
       org-edit-timestamp-down-means-later t
       org-archive-mark-done nil
+      org-hide-emphasis-markers t
       org-catch-invisible-edits 'show
       org-export-coding-system 'utf-8
       org-fast-tag-selection-single-key 'expert
@@ -56,7 +55,8 @@
         (delete-file zip-temp)))))
 
 (after-load 'ob-ditaa
-  (unless (file-exists-p org-ditaa-jar-path)
+  (unless (and (boundp 'org-ditaa-jar-path)
+               (file-exists-p org-ditaa-jar-path))
     (let ((jar-name "ditaa0_9.jar")
           (url "http://jaist.dl.sourceforge.net/project/ditaa/ditaa/0.9/ditaa0_9.zip"))
       (setq org-ditaa-jar-path (expand-file-name jar-name (file-name-directory user-init-file)))
@@ -83,8 +83,7 @@ typical word processor."
         (set (make-local-variable 'blink-cursor-interval) 0.6)
         (set (make-local-variable 'show-trailing-whitespace) nil)
         (flyspell-mode 1)
-        (when (fboundp 'visual-line-mode)
-          (visual-line-mode 1)))
+        (visual-line-mode 1))
     (kill-local-variable 'truncate-lines)
     (kill-local-variable 'word-wrap)
     (kill-local-variable 'cursor-type)
@@ -92,8 +91,7 @@ typical word processor."
     (buffer-face-mode -1)
     ;; (delete-selection-mode -1)
     (flyspell-mode -1)
-    (when (fboundp 'visual-line-mode)
-      (visual-line-mode -1))))
+    (visual-line-mode -1)))
 
 ;;(add-hook 'org-mode-hook 'buffer-face-mode)
 
@@ -123,6 +121,10 @@ typical word processor."
 (after-load 'org-agenda
   (add-to-list 'org-agenda-after-show-hook 'org-show-entry))
 
+(defadvice org-refile (after sanityinc/save-all-after-refile activate)
+  "Save all org buffers after each refile operation."
+  (org-save-all-org-buffers))
+
 ;; Exclude DONE state tasks from refile targets
 (defun sanityinc/verify-refile-target ()
   "Exclude todo keywords with a done state from refile targets."
@@ -130,10 +132,16 @@ typical word processor."
 (setq org-refile-target-verify-function 'sanityinc/verify-refile-target)
 
 (defun sanityinc/org-refile-anywhere (&optional goto default-buffer rfloc msg)
-  "A version of `org-refile' which suppresses `org-refile-target-verify-function'."
+  "A version of `org-refile' which allows refiling to any subtree."
   (interactive "P")
   (let ((org-refile-target-verify-function))
     (org-refile goto default-buffer rfloc msg)))
+
+(defun sanityinc/org-agenda-refile-anywhere (&optional goto rfloc no-update)
+  "A version of `org-agenda-refile' which allows refiling to any subtree."
+  (interactive "P")
+  (let ((org-refile-target-verify-function))
+    (org-agenda-refile goto rfloc no-update)))
 
 ;; Targets start with the file name - allows creating level 1 tasks
 ;;(setq org-refile-use-outline-path (quote file))
@@ -149,7 +157,8 @@ typical word processor."
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!/!)")
               (sequence "PROJECT(p)" "|" "DONE(d!/!)" "CANCELLED(c@/!)")
-              (sequence "WAITING(w@/!)" "HOLD(h)" "|" "CANCELLED(c@/!)"))))
+              (sequence "WAITING(w@/!)" "DELEGATED(e!)" "HOLD(h)" "|" "CANCELLED(c@/!)")))
+      org-todo-repeat-to-state "NEXT")
 
 (setq org-todo-keyword-faces
       (quote (("NEXT" :inherit warning)
@@ -212,13 +221,19 @@ typical word processor."
                         ;; TODO: skip if a parent is a project
                         (org-agenda-skip-function
                          '(lambda ()
-                            (or (org-agenda-skip-subtree-if 'todo '("PROJECT" "HOLD" "WAITING"))
+                            (or (org-agenda-skip-subtree-if 'todo '("PROJECT" "HOLD" "WAITING" "DELEGATED"))
                                 (org-agenda-skip-subtree-if 'nottododo '("TODO")))))
                         (org-tags-match-list-sublevels t)
                         (org-agenda-sorting-strategy
                          '(category-keep))))
             (tags-todo "/WAITING"
                        ((org-agenda-overriding-header "Waiting")
+                        (org-agenda-tags-todo-honor-ignore-options t)
+                        (org-agenda-todo-ignore-scheduled 'future)
+                        (org-agenda-sorting-strategy
+                         '(category-keep))))
+            (tags-todo "/DELEGATED"
+                       ((org-agenda-overriding-header "Delegated")
                         (org-agenda-tags-todo-honor-ignore-options t)
                         (org-agenda-todo-ignore-scheduled 'future)
                         (org-agenda-sorting-strategy
@@ -367,7 +382,3 @@ typical word processor."
 
 
 (provide 'init-org)
-
-;; Local Variables:
-;; coding: utf-8
-;; End:

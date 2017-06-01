@@ -51,6 +51,7 @@
                 (ido-last-directory-list  . 100)
                 (ido-work-directory-list  . 100)
                 (ido-work-file-list       . 100)
+                (ivy-history              . 100)
                 (magit-read-rev-history   . 50)
                 (minibuffer-history       . 50)
                 (org-clock-history        . 50)
@@ -66,23 +67,5 @@
                 tags-file-name
                 tags-table-list)))
 
-(when (eval-when-compile (and (>= emacs-major-version 24)
-                              (version< emacs-version "24.3.50")
-                              ))
-  (unless (boundp 'desktop-restore-frames)
-    (require-package 'frame-restore)
-    (frame-restore)))
-
-;; https://github.com/emacs-helm/helm/issues/204
-;; https://github.com/emacs-helm/helm/issues/94
-;; The saved variable in session will abbreviates with "..." when the level
-;; is too deep or length too long, it maybe breaks some functions,
-;; ex. `helm-show-kill-ring'.
-(setq session-save-print-spec '(t nil 50000))
-
 
 (provide 'init-sessions)
-
-;; Local Variables:
-;; coding: utf-8
-;; End:

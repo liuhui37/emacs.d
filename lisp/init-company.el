@@ -1,70 +1,51 @@
-(require-package 'company)
-(require-package 'company-c-headers)
-(require-package 'function-args)
-(require-package 'irony)
-(require-package 'company-irony)
+;; WAITING: haskell-mode sets tags-table-list globally, breaks tags-completion-at-point-function
+;; TODO Default sort order should place [a-z] before punctuation
 
-(require 'cc-mode)
+(setq tab-always-indent 'complete)  ;; use 't when company is disabled
+(add-to-list 'completion-styles 'initials t)
+;; Stop completion-at-point from popping up completion buffers so eagerly
+(setq completion-cycle-threshold 5)
 
-;; company
-(require 'company)
-(add-hook 'after-init-hook 'global-company-mode)
-;; (delete 'company-semantic company-backends)
-(define-key c-mode-map  [(control tab)] 'company-complete)
-(define-key c++-mode-map  [(control tab)] 'company-complete)
 
-;; company-c-headers
-(require 'company-c-headers)
-(eval-after-load 'company
-  '(add-to-list 'company-backends 'company-c-headers))
+(when (maybe-require-package 'company)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (after-load 'company
+    (diminish 'company-mode "CMP")
+    (define-key company-mode-map (kbd "M-/") 'company-complete)
+    (define-key company-active-map (kbd "M-/") 'company-select-next)
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    (setq-default company-backends '((company-capf company-dabbrev-code) company-dabbrev)
+                  company-dabbrev-other-buffers 'all))
+  (global-set-key (kbd "M-C-/") 'company-complete)
+  (when (maybe-require-package 'company-quickhelp)
+    (add-hook 'after-init-hook 'company-quickhelp-mode))
 
-;; function-args
-(require 'function-args)
-(fa-config-default)
-(define-key c-mode-map  [(tab)] 'moo-complete)
-(define-key c++-mode-map  [(tab)] 'moo-complete)
+  (defun sanityinc/local-push-company-backend (backend)
+    "Add BACKEND to a buffer-local version of `company-backends'."
+    (set (make-local-variable 'company-backends)
+         (append (list backend) company-backends))))
 
-;; hs-minor-mode for folding source code
-(add-hook 'c-mode-common-hook 'hs-minor-mode)
 
-;; irony
-(require 'irony)
+;; Suspend page-break-lines-mode while company menu is active
+;; (see https://github.com/company-mode/company-mode/issues/416)
+(after-load 'company
+  (after-load 'page-break-lines-mode
+    (defvar sanityinc/page-break-lines-on-p nil)
+    (make-variable-buffer-local 'sanityinc/page-break-lines-on-p)
 
-(defun check-irony-hooks ()
-  ;; avoid enabling irony-mode in modes that inherits c-mode, e.g: php-mode
-  (when (member major-mode irony-supported-major-modes)
-    (irony-mode 1))
-  )
+    (defun sanityinc/page-break-lines-disable (&rest ignore)
+      (when (setq sanityinc/page-break-lines-on-p (bound-and-true-p page-break-lines-mode))
+        (page-break-lines-mode -1)))
 
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
+    (defun sanityinc/page-break-lines-maybe-reenable (&rest ignore)
+      (when sanityinc/page-break-lines-on-p
+        (page-break-lines-mode 1)))
 
-;; replace the `completion-at-point' and `complete-symbol' bindings in
-;; irony-mode's buffers by irony-mode's function
-(defun my-irony-mode-hook ()
-  ;; echo "" | g++ -v -x c++ -E -
-  ;; ;; set compiler flags to include header files
-  ;; (setq irony-compile-flags '("-Iinc"))
-  ;; (irony-reload-flags)
-  ;; http://stackoverflow.com/questions/20266303/irony-mode-does-not-pick-up-include-paths
-  (setq irony-additional-clang-options
-        (append '("-I" "inc" "-I" "../inc" "-I" "include" "-I" "../include") irony-additional-clang-options))
-  (define-key irony-mode-map [remap completion-at-point]
-    'irony-completion-at-point-async)
-  (define-key irony-mode-map [remap complete-symbol]
-    'irony-completion-at-point-async))
-(add-hook 'irony-mode-hook 'my-irony-mode-hook)
-(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+    (add-hook 'company-completion-started-hook 'sanityinc/page-break-lines-disable)
+    (add-hook 'company-completion-finished-hook 'sanityinc/page-break-lines-maybe-reenable)
+    (add-hook 'company-completion-cancelled-hook 'sanityinc/page-break-lines-maybe-reenable)))
 
-;; company-irony
-(require 'company-irony)
-(eval-after-load 'company
-  '(add-to-list 'company-backends 'company-irony))
 
-;; (optional) adds CC special commands to `company-begin-commands' in order to
-;; trigger completion at interesting places, such as after scope operator
-;;     std::|
-(add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
 
 (provide 'init-company)
