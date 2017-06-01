@@ -37,6 +37,8 @@
 
 (transient-mark-mode t)
 
+(dolist (hook '(prog-mode-hook html-mode-hook css-mode-hook))
+  (add-hook hook 'linum-mode))
 
  ;;; A simple visible bell which works in all terminal types
 

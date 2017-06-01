@@ -72,6 +72,8 @@
           (lambda ()
             (setq line-spacing 0)))
 
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
 
 (require-package 'disable-mouse)
 
